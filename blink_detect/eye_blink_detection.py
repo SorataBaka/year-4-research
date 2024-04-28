@@ -5,6 +5,7 @@ import f_detector
 import imutils
 import numpy as np
 import requests
+from datetime import datetime, timedelta
 
 # instancio detector
 detector = f_detector.eye_blink_detector()
@@ -13,13 +14,21 @@ COUNTER = 0
 TOTAL = 0
 SECONDCOUNTER = TOTAL
 USERNAME="Chris"
+TIMESINCELASTBLINK = datetime.now()
 
 # handle database log
 def logDatabase():
     global SECONDCOUNTER
     global TOTAL
+    global TIMESINCELASTBLINK
     if(SECONDCOUNTER == TOTAL):
         return
+    currentTime = datetime.now()
+    if(currentTime - TIMESINCELASTBLINK < timedelta(seconds=3)):
+        return
+    
+    
+    TIMESINCELASTBLINK = currentTime
     SECONDCOUNTER = TOTAL
     x = requests.get("http://localhost:3000/log/" + USERNAME)
     print("Logged with status " + str(x.status_code))
@@ -50,7 +59,7 @@ while True:
     else:
         img_post = im 
     # visualizacion 
-    end_time = time.time() - star_time    
+    end_time = time.time() - star_time
     FPS = 1/end_time
     cv2.putText(img_post,f"FPS: {round(FPS,3)}",(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
     cv2.imshow('はばたき数',img_post)
