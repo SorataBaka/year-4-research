@@ -6,10 +6,11 @@ import imutils
 import numpy as np
 import requests
 from datetime import datetime, timedelta
+from playsound import playsound
+import os
 
-# instancio detector
+# Initialize detector
 detector = f_detector.eye_blink_detector()
-# iniciar variables para el detector de parapadeo
 COUNTER = 0
 TOTAL = 0
 SECONDCOUNTER = TOTAL
@@ -26,15 +27,17 @@ def logDatabase():
     currentTime = datetime.now()
     if(currentTime - TIMESINCELASTBLINK < timedelta(seconds=3)):
         return
-    
-    
+    os.system("""
+              osascript -e 'display notification "Attention" with title "Blink Detected"'
+              """)
     TIMESINCELASTBLINK = currentTime
     SECONDCOUNTER = TOTAL
     x = requests.get("http://localhost:3000/log/" + USERNAME)
+    playsound("assets/sound.mp3")
     print("Logged with status " + str(x.status_code))
     return
 # ----------------------------- video -----------------------------
-#ingestar data
+#Take in video input
 vs = VideoStream(src=0).start()
 while True:
     star_time = time.time()
