@@ -3,7 +3,7 @@
 # frames the eye must be below the threshold
 
 
-EYE_AR_THRESH = 0.18 #baseline
+EYE_AR_THRESH = 0.2 #baseline
 EYE_AR_CONSEC_FRAMES = 3
 
 # eye landmarks

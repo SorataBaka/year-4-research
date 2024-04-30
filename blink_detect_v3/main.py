@@ -1,17 +1,16 @@
+# TODO: add statistics to to calculate standard deviation of average to input
 # Handle imports and libraries
 from imutils.video import VideoStream
 from imutils import face_utils
 from scipy.spatial import distance as dist
-import datetime
-import argparse
 import imutils
 import time
 import dlib
 import cv2
 import numpy as np
 
-THRESHOLD=0.2
-CONSEC_FRAME=3
+THRESHOLD=0.18
+CONSEC_FRAME=2
 COUNT=0
 TOTAL=0
 
@@ -43,7 +42,8 @@ def calc_EAR(eye):
 # Process frames
 while True:
   frame = stream.read()
-  frame = imutils.resize(frame, width=720)
+  frame = imutils.resize(frame, width=500)
+  frame = cv2.flip(frame, flipCode=1)
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
   
@@ -74,12 +74,8 @@ while True:
     if(ratio < THRESHOLD):
       COUNT += 1
     else:
-      if(COUNT >= CONSEC_FRAME):
+      if(COUNT >= CONSEC_FRAME and COUNT < 10):
         TOTAL+=1
-      if(COUNT > HIGHEST_CONSEC):
-        HIGHEST_CONSEC = COUNT
-      if(COUNT < LOWEST_CONSEC):
-        LOWEST_CONSEC = COUNT
       COUNT=0
     
     
