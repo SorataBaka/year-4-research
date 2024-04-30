@@ -81,17 +81,17 @@ while True:
       if(ratio < THRESHOLD):
         COUNT += 1
       else:
-        if(COUNT >= CONSEC_FRAME and COUNT < 10):
+        if(COUNT >= CONSEC_FRAME and COUNT < 8):
           TOTAL+=1
         COUNT=0
     else:
       AVERAGE_EAR = TOTAL_EAR/ITERATION
       variance = pow((ratio - AVERAGE_EAR), 2)
       derivation = np.sqrt(variance)
-      if(derivation > 0.05):
+      if(derivation > 0.04):
         COUNT += 1
       else:
-        if(COUNT >= CONSEC_FRAME and COUNT < 10):
+        if(COUNT >= CONSEC_FRAME and COUNT < 8):
           playsound("assets/sound.mp3")
           TOTAL += 1
         COUNT = 0
