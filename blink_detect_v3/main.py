@@ -8,11 +8,14 @@ import time
 import dlib
 import cv2
 import numpy as np
+from playsound import playsound
 
 THRESHOLD=0.18
 CONSEC_FRAME=2
 COUNT=0
 TOTAL=0
+TOTAL_EAR=0
+ITERATION=0
 
 LOWEST_RATIO=1
 HIGHEST_RATIO=0
@@ -42,7 +45,7 @@ def calc_EAR(eye):
 # Process frames
 while True:
   frame = stream.read()
-  frame = imutils.resize(frame, width=500)
+  frame = imutils.resize(frame, width=900)
   frame = cv2.flip(frame, flipCode=1)
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
@@ -66,24 +69,42 @@ while True:
     rightRatio = calc_EAR(rightEye)
     
     ratio = (leftRatio + rightRatio)/2.0
-    if(ratio > HIGHEST_RATIO):
-      HIGHEST_RATIO = ratio
-    if(ratio < LOWEST_RATIO):
-      LOWEST_RATIO = ratio
-    
-    if(ratio < THRESHOLD):
-      COUNT += 1
+    TOTAL_EAR += ratio
+    ITERATION += 1
+    derivation = 0
+    if(ITERATION < 500):
+      if(ratio > HIGHEST_RATIO):
+        HIGHEST_RATIO = ratio
+      if(ratio < LOWEST_RATIO):
+        LOWEST_RATIO = ratio
+      
+      if(ratio < THRESHOLD):
+        COUNT += 1
+      else:
+        if(COUNT >= CONSEC_FRAME and COUNT < 10):
+          TOTAL+=1
+        COUNT=0
     else:
-      if(COUNT >= CONSEC_FRAME and COUNT < 10):
-        TOTAL+=1
-      COUNT=0
-    
+      AVERAGE_EAR = TOTAL_EAR/ITERATION
+      variance = pow((ratio - AVERAGE_EAR), 2)
+      derivation = np.sqrt(variance)
+      if(derivation > 0.05):
+        COUNT += 1
+      else:
+        if(COUNT >= CONSEC_FRAME and COUNT < 10):
+          playsound("assets/sound.mp3")
+          TOTAL += 1
+        COUNT = 0
+      
     
     cv2.putText(isolate_stream, "Blinks: {}".format(TOTAL), (20, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
     cv2.putText(isolate_stream, "Ratio: {}".format(ratio), (20, 90), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
     cv2.putText(isolate_stream, "Left Ratio: {}".format(leftRatio), (20, 120), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
     cv2.putText(isolate_stream, "Right Ratio: {}".format(rightRatio), (20, 150), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
     cv2.putText(isolate_stream, "Consecutive Close: {}".format(COUNT), (20, 180), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
+    cv2.putText(isolate_stream, "Average EAR: {}".format(TOTAL_EAR/ITERATION), (20, 200), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
+    cv2.putText(isolate_stream, "Derivation: {}".format(derivation), (20, 220), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
+    cv2.putText(isolate_stream, "Iterations: {}".format(ITERATION), (20, 240), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 2)
     leftHull = cv2.convexHull(leftEye)
     rightHull = cv2.convexHull(rightEye)
     
