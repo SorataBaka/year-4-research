@@ -3,6 +3,7 @@
 import imutils.object_detection
 from imutils.video import VideoStream
 from imutils import face_utils
+from matplotlib import widgets
 from scipy.spatial import distance as dist
 import imutils
 import time
@@ -16,13 +17,17 @@ import csv
 
 THRESHOLD=0.18
 CONSEC_FRAME=2
+FRAME_RESIZE = 1000
+
 COUNT=0
 TOTAL=0
+
 TOTAL_EAR=0
 ITERATION=0
-
+START_TIME = time.time()
 
 EAR_list = []
+
 
 # Handle face predictor
 print("Loading face landmark model")
@@ -32,11 +37,16 @@ predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 # Handle input video stream
 print("Handling video input")
 stream = VideoStream(0).start()
+sampleFrame = stream.read()
+resizedFrame = imutils.resize(sampleFrame, width=FRAME_RESIZE)
+height, width = resizedFrame.shape[:2]
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+capture = cv2.VideoWriter("output.mp4", fourcc, 25, (width*2, height*2))
 
 #Get eye indexes
 (lstart, lend) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
 (rstart, rend) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
-
 # Define eye aspect ratio function
 def calc_EAR(eye):
   leftPoint = dist.euclidean(eye[1], eye[5])
@@ -50,7 +60,7 @@ def calc_EAR(eye):
 while True:
   frame = stream.read()
   start_time = time.time()
-  frame = imutils.resize(frame, width=700)
+  frame = imutils.resize(frame, width=FRAME_RESIZE)
   frame = cv2.flip(frame, flipCode=1)
   
   # Image cleaning
@@ -80,7 +90,6 @@ while True:
     
     ratio = (leftRatio + rightRatio)/2.0
     
-    
     TOTAL_EAR += ratio
     ITERATION += 1
     
@@ -98,6 +107,7 @@ while True:
       AVERAGE_EAR = TOTAL_EAR/ITERATION
       variance = pow((ratio - AVERAGE_EAR), 2)
       derivation = np.sqrt(variance)
+      
       if(derivation > 0.042):
         COUNT += 1
       else:
@@ -123,6 +133,7 @@ while True:
     cv2.drawContours(face_landmark_stream, [leftHull], -1, (255, 255, 0), 1)
     cv2.drawContours(face_landmark_stream, [rightHull], -1, (255, 255, 0), 1)
     
+    
   cv2.putText(frame, "Original Feed", (20, 30), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
   cv2.putText(gray, "Processed Feed", (20, 30), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
   cv2.putText(face_landmark_stream, "Feed + Isolate", (20, 30), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
@@ -136,6 +147,10 @@ while True:
   cv2.putText(vertical_feed, "FPS: {:.2f}".format(fps) ,(20, 50), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
   cv2.imshow("Frame", vertical_feed)
   
+  CURRENT_TIME = time.time()
+  if(CURRENT_TIME - START_TIME >= 60 * 1000):
+    break
+  capture.write(vertical_feed)
   key = cv2.waitKey(1) & 0xFF
   if(key == ord("q")):
     break
@@ -146,3 +161,4 @@ with open("output.csv", 'w', newline='') as file:
   csvWriter = csv.writer(file)
   csvWriter.writerow(["time_logged", "left_EAR", "right_EAR", "total_EAR", "average_EAR", "derivation",  "is_blink"])
   csvWriter.writerows(EAR_list)
+capture.release()
