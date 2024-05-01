@@ -25,6 +25,7 @@ START_TIME = time.time()
 
 EAR_list = []
 
+
 # Handle face predictor
 print("Loading face landmark model")
 detector = dlib.get_frontal_face_detector()
@@ -33,12 +34,6 @@ predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 # Handle input video stream
 print("Handling video input")
 stream = VideoStream(0).start()
-sampleFrame = stream.read()
-resizedFrame = imutils.resize(sampleFrame, width=FRAME_RESIZE)
-height, width = resizedFrame.shape[:2]
-
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-capture = cv2.VideoWriter("output.mp4", fourcc, 25, (width*2, height*2))
 
 #Get eye indexes
 (lstart, lend) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -81,6 +76,25 @@ while True:
     leftEye = shape[lstart:lend]
     rightEye = shape[rstart:rend]
     
+    #Extract the eye
+    leftEyeXCoordinates = [pt[0] for pt in leftEye]
+    leftEyeYCoordinates = [pt[1] for pt in leftEye]
+    rightEyeXCoordinates = [pt[0] for pt in rightEye]
+    rightEyeYCoordinates = [pt[1] for pt in rightEye]
+    
+    leftEyeXMax = max(leftEyeXCoordinates) + 20
+    leftEyeXMin = min(leftEyeXCoordinates) - 20
+    leftEyeYMax = max(leftEyeYCoordinates) + 20
+    leftEyeYMin = min(leftEyeYCoordinates) - 20
+    rightEyeXMax = max(rightEyeXCoordinates) + 20
+    rightEyeXMin = min(rightEyeXCoordinates) - 20
+    rightEyeYMax = max(rightEyeYCoordinates) + 20
+    rightEyeYMin = min(rightEyeYCoordinates) - 20
+    
+    leftEyeImage = gray[leftEyeYMin:leftEyeYMax, leftEyeXMin:leftEyeXMax]
+    rightEyeImage = gray[rightEyeYMin:rightEyeYMax, rightEyeXMin:rightEyeXMax]
+    
+    
     leftRatio = calc_EAR(leftEye)
     rightRatio = calc_EAR(rightEye)
     
@@ -90,15 +104,17 @@ while True:
     ITERATION += 1
     
     derivation = 0
-    is_blink = False
     
     if(ITERATION < 500):
       if(ratio < THRESHOLD):
         COUNT += 1
+        cv2.imwrite("dataset/eyes_closed/left/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_closed/right/{}.jpg".format(ITERATION), rightEyeImage)
       else:
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
+          cv2.imwrite("dataset/eyes_open/left/{}.jpg".format(ITERATION), leftEyeImage)
+          cv2.imwrite("dataset/eyes_open/right/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL+=1
-          is_blink = True
         COUNT=0
     else:
       AVERAGE_EAR = TOTAL_EAR/ITERATION
@@ -106,21 +122,15 @@ while True:
       derivation = np.sqrt(variance)
       if(derivation > 0.09):
         COUNT += 1
+        cv2.imwrite("dataset/eyes_closed/left/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_closed/right/{}.jpg".format(ITERATION), rightEyeImage)
       else:
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
+          cv2.imwrite("dataset/eyes_open/left/{}.jpg".format(ITERATION), leftEyeImage)
+          cv2.imwrite("dataset/eyes_open/right/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL += 1
-          is_blink = True
         COUNT = 0
-      EAR_list.append([start_time, leftRatio, rightRatio, ratio, TOTAL_EAR/ITERATION, derivation, is_blink])
-    
-    cv2.putText(isolate_stream, "Blinks: {}".format(TOTAL), (20, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Ratio: {:.3f}".format(ratio), (20, 80), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Left Ratio: {:.3f}".format(leftRatio), (20, 100), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Right Ratio: {:.3f}".format(rightRatio), (20, 120), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Consecutive Close: {}".format(COUNT), (20, 140), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Average EAR: {:.3f}".format(TOTAL_EAR/ITERATION), (20, 160), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Derivation: {:.3f}".format(derivation), (20, 180), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
-    cv2.putText(isolate_stream, "Iterations: {:.3f}".format(ITERATION), (20, 200), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,0), 1)
+      
     leftHull = cv2.convexHull(leftEye)
     rightHull = cv2.convexHull(rightEye)
     
@@ -146,15 +156,9 @@ while True:
   CURRENT_TIME = time.time()
   if(CURRENT_TIME - START_TIME >= 60 * 1000):
     break
-  capture.write(vertical_feed)
   key = cv2.waitKey(1) & 0xFF
   if(key == ord("q")):
     break
+  
 cv2.destroyAllWindows()
 stream.stop()
-
-with open("output.csv", 'w', newline='') as file:
-  csvWriter = csv.writer(file)
-  csvWriter.writerow(["time_logged", "left_EAR", "right_EAR", "total_EAR", "average_EAR", "derivation",  "is_blink"])
-  csvWriter.writerows(EAR_list)
-capture.release()
