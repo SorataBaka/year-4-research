@@ -108,12 +108,12 @@ while True:
     if(ITERATION < 500):
       if(ratio < THRESHOLD):
         COUNT += 1
-        cv2.imwrite("dataset/eyes_closed/left/{}.jpg".format(ITERATION), leftEyeImage)
-        cv2.imwrite("dataset/eyes_closed/right/{}.jpg".format(ITERATION), rightEyeImage)
+        cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), rightEyeImage)
       else:
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
-          cv2.imwrite("dataset/eyes_open/left/{}.jpg".format(ITERATION), leftEyeImage)
-          cv2.imwrite("dataset/eyes_open/right/{}.jpg".format(ITERATION), rightEyeImage)
+          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
+          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL+=1
         COUNT=0
     else:
@@ -122,12 +122,12 @@ while True:
       derivation = np.sqrt(variance)
       if(derivation > 0.09):
         COUNT += 1
-        cv2.imwrite("dataset/eyes_closed/left/{}.jpg".format(ITERATION), leftEyeImage)
-        cv2.imwrite("dataset/eyes_closed/right/{}.jpg".format(ITERATION), rightEyeImage)
+        cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), rightEyeImage)
       else:
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
-          cv2.imwrite("dataset/eyes_open/left/{}.jpg".format(ITERATION), leftEyeImage)
-          cv2.imwrite("dataset/eyes_open/right/{}.jpg".format(ITERATION), rightEyeImage)
+          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
+          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL += 1
         COUNT = 0
       
