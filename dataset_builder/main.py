@@ -111,9 +111,9 @@ while True:
         cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), leftEyeImage)
         cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), rightEyeImage)
       else:
+        cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
-          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
-          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL+=1
         COUNT=0
     else:
@@ -125,9 +125,9 @@ while True:
         cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), leftEyeImage)
         cv2.imwrite("dataset/eyes_closed/{}.jpg".format(ITERATION), rightEyeImage)
       else:
+        cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
+        cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
         if(COUNT >= CONSEC_FRAME and COUNT < 8):
-          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), leftEyeImage)
-          cv2.imwrite("dataset/eyes_open/{}.jpg".format(ITERATION), rightEyeImage)
           TOTAL += 1
         COUNT = 0
       
