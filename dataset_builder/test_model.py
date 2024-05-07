@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-model = tf.keras.models.load_model("trained.keras")
+model = tf.keras.models.load_model("output/eye_open_close_rev6_70_50.keras")
 
 
 # Declare global variables
@@ -103,7 +103,7 @@ while True:
     if(np.argmax(leftScore) == 0 and 100 * np.max(leftScore) >= 70.0) or (np.argmax(rightScore) == 0 and 100 * np.max(rightScore) >= 70.0):
       COUNT += 1
     else:
-      if(COUNT >= 1 and COUNT < 8):
+      if(COUNT >= 1 and COUNT < 5):
         TOTAL+=1
         is_blink = True
       COUNT=0
