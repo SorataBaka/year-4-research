@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-model = tf.keras.models.load_model("output/eye_open_close_rev6_70_50.keras")
+model = tf.keras.models.load_model("trained.keras")
 
 
 # Declare global variables
@@ -81,8 +81,8 @@ while True:
     leftEyeImage = gray[leftEyeYMin:leftEyeYMax, leftEyeXMin:leftEyeXMax]
     rightEyeImage = gray[rightEyeYMin:rightEyeYMax, rightEyeXMin:rightEyeXMax]
     
-    leftEyeImage = cv2.resize(leftEyeImage,(70, 50))
-    rightEyeImage = cv2.resize(rightEyeImage ,(70, 50))
+    leftEyeImage = cv2.resize(leftEyeImage,(50, 30))
+    rightEyeImage = cv2.resize(rightEyeImage ,(50, 30))
     
     leftEyeImage = tf.keras.utils.img_to_array(leftEyeImage)
     leftPrediction = model.predict(np.expand_dims(leftEyeImage, axis=0), verbose=0)
@@ -108,7 +108,7 @@ while True:
         is_blink = True
       COUNT=0
     
-    cv2.putText(frame, "Blinks: {}".format(TOTAL), (20, 140), cv2.FONT_HERSHEY_PLAIN, 1.5, (255,255,255), 1)
+    cv2.putText(frame, "Blinks: {}".format(TOTAL), (20, 140), cv2.FONT_HERSHEY_PLAIN, 1.5, (0,0,0), 1)
 
     leftHull = cv2.convexHull(leftEye)
     rightHull = cv2.convexHull(rightEye)
