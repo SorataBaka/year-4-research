@@ -5,23 +5,26 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
-
+import { Provider } from "react-redux";
+import store from "./lib/globalSlice";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
 	<React.StrictMode>
-		<ToastContainer
-			position="top-right"
-			autoClose={false}
-			newestOnTop={false}
-			closeOnClick
-			rtl={false}
-			pauseOnFocusLoss={false}
-			draggable={false}
-			theme="dark"
-			key={1}
-			limit={1}
-		/>
-		<App />
+		<Provider store={store}>
+			<ToastContainer
+				position="top-right"
+				autoClose={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss={false}
+				draggable={false}
+				theme="dark"
+				key={1}
+				limit={1}
+			/>
+			<App />
+		</Provider>
 	</React.StrictMode>
 );
 
