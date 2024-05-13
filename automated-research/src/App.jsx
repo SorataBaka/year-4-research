@@ -7,7 +7,7 @@ import getCameraPermission from "./lib/getPermission";
 
 function App() {
 	const [displayText, setDisplayText] = useState(
-		"Hello! Once you are ready, please click on the start button below."
+		"こんにちは！ 準備ができたら、下のスタートボタンをクリックしてください。"
 	);
 	const [inSession, setInSession] = useState(false);
 	const [permission, setPermission] = useState(false);
@@ -30,15 +30,13 @@ function App() {
 			setInSession(true);
 			const recorder = new MediaRecorder(stream, { type: "video/mp4" });
 			videoRecorder.current = recorder;
-			setDisplayText("Welcome!");
+			setDisplayText("いっらしゃい!");
 			await wait(2000);
 
-			setDisplayText("The test will begin shortly");
+			setDisplayText("テストは間もなく始まります");
 			await wait(3000);
 
-			setDisplayText(
-				"Please keep still and stare into the camera for 1 minute."
-			);
+			setDisplayText("1分間静止してカメラを見つめてください。");
 			videoRecorder.current.ondataavailable = (event) => {
 				if (typeof event.data === "undefined") return;
 				if (event.data.size === 0) return;
@@ -53,11 +51,11 @@ function App() {
 			videoRecorder.current.stop();
 			triggerDone();
 
-			setDisplayText("Thank you for staying still! ");
-			await wait(2000);
+			setDisplayText("じっとしていてくれてありがとう！");
+			await wait(3000);
 
 			setDisplayText(
-				"Next, we need you to watch a youtube video for a minute. Please don't look away from the screen!"
+				"次に、YouTube ビデオを 1 分間見てください。 画面から目を離さないでください！"
 			);
 			await wait(3000);
 			videoRecorder.current.ondataavailable = (event) => {
@@ -73,7 +71,7 @@ function App() {
 				"https://www.youtube.com/watch?v=WtScBbpbWCI&t=325s"
 			);
 			videoRecorder.current.start();
-			setDisplayText("Thank you for watching the video!");
+			setDisplayText("動画をご覧いただきありがとうございます!");
 			await wait(60 * 1000);
 			videoRecorder.current.stop();
 			cookingVideo.close();
@@ -81,7 +79,7 @@ function App() {
 			await wait(3000);
 
 			setDisplayText(
-				"Now, we need you to watch another video. This time it may be a bit more interesting! Again, please don't look away from the screen!"
+				"では、別のビデオをご覧ください。 今回はちょっと面白いかも！ 繰り返しますが、画面から目を離さないでください。"
 			);
 			await wait(3000);
 			videoRecorder.current.ondataavailable = (event) => {
@@ -97,9 +95,7 @@ function App() {
 				"https://www.youtube.com/watch?v=YOOQl0hC18U&t=2188s"
 			);
 			videoRecorder.current.start();
-			setDisplayText(
-				"Thank you for the cooperation! Just a few more steps. We thank you for your continuous cooperation."
-			);
+			setDisplayText("ご協力ありがとうございました！ あと数ステップです。");
 			await wait(65 * 1000);
 			videoRecorder.current.stop();
 			cleaningVideo.close();
@@ -107,12 +103,12 @@ function App() {
 			await wait(3000);
 
 			setDisplayText(
-				"Now, let's play a game! You will be given a small game where you use chopsticks to put the mame on the plate. Please do this for 1 minute. If you finish before the time ends, you can dump the contents of the plate and do it all over again. We will let you know when to stop."
+				"さあ、ゲームをしましょう！ 箸を使って豆をお皿に置く小さなゲームが与えられます。 これを1分間行ってください。 時間が終了する前に終了した場合は、プレートの内容を捨てて、最初からやり直すことができます。 停止する場合はお知らせいたします。"
 			);
 			await wait(5000);
-			setDisplayText("Ready?");
+			setDisplayText("準備ができて？");
 			await wait(1500);
-			setDisplayText("Begin!");
+			setDisplayText("始める！");
 			videoRecorder.current.ondataavailable = (event) => {
 				if (typeof event.data === "undefined") return;
 				if (event.data.size === 0) return;
@@ -126,14 +122,55 @@ function App() {
 			await wait(60 * 1000);
 			videoRecorder.current.stop();
 			await triggerDone();
-			setDisplayText("Thank you and good job!");
+			setDisplayText("ミニゲームお疲れ様でした！");
 			await wait(2000);
 
-			setDisplayText("Now, let's try something more interesting.");
+			setDisplayText(
+				"もうすぐ終わりです。もっと面白いことを試してみましょう。"
+			);
 			await wait(2000);
+			videoRecorder.current.ondataavailable = (event) => {
+				if (typeof event.data === "undefined") return;
+				if (event.data.size === 0) return;
+				const objectUrl = URL.createObjectURL(event.data);
+				const hrefTag = document.createElement("a");
+				hrefTag.download = `${name}_mazegame.mp4`;
+				hrefTag.href = objectUrl;
+				hrefTag.click();
+			};
+			const mazegame = window.open("https://maze.tianharjuno.com");
+			videoRecorder.current.start();
+			await wait(60 * 1000);
+			videoRecorder.current.stop();
+			setDisplayText("よくやった！");
+			mazegame.close();
+			await triggerDone();
+			await wait(2000);
+			setDisplayText("最後はタイピングゲームをしてみましょう。");
+			await wait(3000);
+			videoRecorder.current.ondataavailable = (event) => {
+				if (typeof event.data === "undefined") return;
+				if (event.data.size === 0) return;
+				const objectUrl = URL.createObjectURL(event.data);
+				const hrefTag = document.createElement("a");
+				hrefTag.download = `${name}_typinggame.mp4`;
+				hrefTag.href = objectUrl;
+				hrefTag.click();
+			};
+			const typinggame = window.open(
+				"https://10fastfingers.com/typing-test/japanese"
+			);
+			videoRecorder.current.start();
+			await wait(65 * 1000);
+			videoRecorder.current.stop();
+			setDisplayText(
+				"今回の実験にご協力いただきまして誠にありがとうございました。 楽しい一日をお過ごしください。"
+			);
+			typinggame.close();
+			await triggerDone();
 		} catch (e) {
 			console.error(e.message);
-			toast.error("Something went wrong!", e.message);
+			toast.error("問題が発生しました!", e.message);
 		}
 	};
 
@@ -141,14 +178,17 @@ function App() {
 		if (stream === null) return;
 		playbackReference.current.srcObject = stream;
 	}, [permission, stream]);
+	useEffect(() => {
+		document.title = "実験アプリ";
+	}, []);
 
 	if (width < 1200 || height < 500) {
 		return (
 			<div className="App">
 				<main className="min-h-screen flex flex-col align-middle justify-center text-center gap-y-5 p-5">
-					<h1 className="text-3xl font-bold">Window size too small!</h1>
+					<h1 className="text-3xl font-bold">窓のサイズが小さすぎる!</h1>
 					<h2 className="text-2xl w-1/2 mx-auto">
-						This application is designed to run only on desktop.
+						このアプリケーションはデスクトップ上でのみ実行されるように設計されています。
 					</h2>
 				</main>
 			</div>
@@ -158,17 +198,19 @@ function App() {
 		return (
 			<div className="App">
 				<main className="min-h-screen flex flex-col align-middle justify-center text-center gap-y-5 p-5">
-					<h1 className="text-3xl font-bold">Getting camera permissions...</h1>
+					<h1 className="text-3xl font-bold">
+						カメラの許可を取得しています...
+					</h1>
 					<h2 className="text-2xl w-1/2 mx-auto">
-						You need a camera to run this app.
+						このアプリを実行するにはカメラが必要です。
 					</h2>
 					<button
 						onClick={() => {
 							getCameraPermission(setPermission, setStream);
 						}}
-						className="bg-red-500 w-full mx-auto p-3 text-white font-bold rounded-md"
+						className="bg-red-500 w-1/2 mx-auto p-3 text-white font-bold rounded-xl"
 					>
-						Get camera permission
+						カメラの許可を取得する
 					</button>
 				</main>
 			</div>
@@ -182,10 +224,10 @@ function App() {
 				<video
 					ref={playbackReference}
 					autoPlay
-					className="h-screen w-1/2 object-cover fixed rounded-r-3xl"
+					className="h-screen w-1/2 object-cover fixed rounded-r-3xl shadow-2xl"
 				></video>
-				<div className="h-screen w-1/2 fixed right-0 top-0 p-10 flex flex-col align-middle justify-center gap-5">
-					<h1 className="text-3xl font-bold transition-all duration-700">
+				<div className="h-screen w-1/2 fixed right-0 top-0 p-10 flex flex-col align-middle justify-center gap-10">
+					<h1 className="text-4xl font-bold transition-all duration-700">
 						{displayText}
 					</h1>
 					{!inSession && (
@@ -193,16 +235,16 @@ function App() {
 							<input
 								type="text"
 								placeholder="名前を入力してください"
-								className="text-3xl p-3 rounded-xl text-center border-none shadow-inner"
+								className="text-2xl p-3 rounded-xl text-center border-none shadow-lg"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 							/>
 							<button
 								onClick={startSession}
 								disabled={name === ""}
-								className="bg-blue-500 text-white font-bold mx-auto px-10 py-4 rounded-lg text-2xl hover:cursor-pointer active:scale-95 transition-all duration-150 disabled:bg-blue-200"
+								className="bg-blue-500 text-white font-bold mx-auto px-10 py-4 rounded-lg text-2xl hover:cursor-pointer active:scale-95 transition-all duration-150 disabled:bg-blue-200 shadow-lg"
 							>
-								Begin
+								始める
 							</button>
 						</>
 					)}
