@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import wait from "./lib/wait";
 import useWindowSize from "./lib/useWindowSize";
 import getCameraPermission from "./lib/getPermission";
-
+const timeSet = 60;
 function App() {
 	const [displayText, setDisplayText] = useState(
 		"こんにちは！ 準備ができたら、下のスタートボタンをクリックしてください。"
@@ -14,6 +14,7 @@ function App() {
 	const [stream, setStream] = useState(null);
 	const [backgroundColor, setBackgroundColor] = useState("bg-white");
 	const [name, setName] = useState("");
+	const [step, setStep] = useState(1);
 
 	const playbackReference = useRef(null);
 	const videoRecorder = useRef(null);
@@ -21,9 +22,9 @@ function App() {
 
 	const triggerDone = async () => {
 		setBackgroundColor("bg-green-500");
-		await wait(1000);
+		await wait(300);
 		setBackgroundColor("bg-white");
-		await wait(500);
+		await wait(300);
 	};
 	const startSession = async () => {
 		try {
@@ -47,8 +48,9 @@ function App() {
 				hrefTag.click();
 			};
 			videoRecorder.current.start();
-			await wait(60 * 1000);
+			await wait(timeSet * 1000);
 			videoRecorder.current.stop();
+			setStep((currentStep) => currentStep + 1);
 			triggerDone();
 
 			setDisplayText("じっとしていてくれてありがとう！");
@@ -72,8 +74,9 @@ function App() {
 			);
 			videoRecorder.current.start();
 			setDisplayText("動画をご覧いただきありがとうございます!");
-			await wait(60 * 1000);
+			await wait(timeSet * 1000);
 			videoRecorder.current.stop();
+			setStep((currentStep) => currentStep + 1);
 			cookingVideo.close();
 			await triggerDone();
 			await wait(3000);
@@ -96,8 +99,9 @@ function App() {
 			);
 			videoRecorder.current.start();
 			setDisplayText("ご協力ありがとうございました！ あと数ステップです。");
-			await wait(65 * 1000);
+			await wait((timeSet + 5) * 1000);
 			videoRecorder.current.stop();
+			setStep((currentStep) => currentStep + 1);
 			cleaningVideo.close();
 			await triggerDone();
 			await wait(3000);
@@ -105,7 +109,7 @@ function App() {
 			setDisplayText(
 				"さあ、ゲームをしましょう！ 箸を使って豆をお皿に置く小さなゲームが与えられます。 これを1分間行ってください。 時間が終了する前に終了した場合は、プレートの内容を捨てて、最初からやり直すことができます。 停止する場合はお知らせいたします。"
 			);
-			await wait(5000);
+			await wait(10000);
 			setDisplayText("準備ができて？");
 			await wait(1500);
 			setDisplayText("始める！");
@@ -119,8 +123,9 @@ function App() {
 				hrefTag.click();
 			};
 			videoRecorder.current.start();
-			await wait(60 * 1000);
+			await wait(timeSet * 1000);
 			videoRecorder.current.stop();
+			setStep((currentStep) => currentStep + 1);
 			await triggerDone();
 			setDisplayText("ミニゲームお疲れ様でした！");
 			await wait(2000);
@@ -140,8 +145,9 @@ function App() {
 			};
 			const mazegame = window.open("https://maze.tianharjuno.com");
 			videoRecorder.current.start();
-			await wait(60 * 1000);
+			await wait(timeSet * 1000);
 			videoRecorder.current.stop();
+			setStep((currentStep) => currentStep + 1);
 			setDisplayText("よくやった！");
 			mazegame.close();
 			await triggerDone();
@@ -161,7 +167,7 @@ function App() {
 				"https://10fastfingers.com/typing-test/japanese"
 			);
 			videoRecorder.current.start();
-			await wait(65 * 1000);
+			await wait((timeSet + 5) * 1000);
 			videoRecorder.current.stop();
 			setDisplayText(
 				"今回の実験にご協力いただきまして誠にありがとうございました。 楽しい一日をお過ごしください。"
@@ -197,18 +203,18 @@ function App() {
 	if (!permission) {
 		return (
 			<div className="App">
-				<main className="min-h-screen flex flex-col align-middle justify-center text-center gap-y-5 p-5">
-					<h1 className="text-3xl font-bold">
+				<main className="min-h-screen flex flex-col align-middle justify-center text-center gap-y-12 p-5">
+					<h1 className="text-7xl font-bold">
 						カメラの許可を取得しています...
 					</h1>
-					<h2 className="text-2xl w-1/2 mx-auto">
+					<h2 className="text-4xl w-1/2 mx-auto">
 						このアプリを実行するにはカメラが必要です。
 					</h2>
 					<button
 						onClick={() => {
 							getCameraPermission(setPermission, setStream);
 						}}
-						className="bg-red-500 w-1/2 mx-auto p-3 text-white font-bold rounded-xl"
+						className="bg-red-500 w-1/2 mx-auto p-3 text-white font-bold rounded-xl text-2xl"
 					>
 						カメラの許可を取得する
 					</button>
@@ -227,7 +233,10 @@ function App() {
 					className="h-screen w-1/2 object-cover fixed rounded-r-3xl shadow-2xl"
 				></video>
 				<div className="h-screen w-1/2 fixed right-0 top-0 p-10 flex flex-col align-middle justify-center gap-10">
-					<h1 className="text-4xl font-bold transition-all duration-700">
+					<span className="absolute top-0 right-0 p-10 text-2xl font-bold">
+						ステップ: {step}/6
+					</span>
+					<h1 className="text-5xl font-bold transition-all duration-700">
 						{displayText}
 					</h1>
 					{!inSession && (
@@ -235,7 +244,7 @@ function App() {
 							<input
 								type="text"
 								placeholder="名前を入力してください"
-								className="text-2xl p-3 rounded-xl text-center border-none shadow-lg"
+								className="text-2xl p-3 rounded-xl text-center border-none shadow-xl focus:outline-none text-bold"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 							/>
