@@ -80,7 +80,7 @@ export default function App() {
 		setGameId(gameId + 1);
 	};
 	return (
-		<div className="App" onKeyDown={handleMove} tabIndex={-1}>
+		<div className="App" tabIndex={-1}>
 			<div className="setting">
 				<button onClick={handleUpdateSettings}>
 					Restart game with new settings
@@ -88,7 +88,7 @@ export default function App() {
 			</div>
 			<p>use WSAD or Arrow Keys to move</p>
 
-			<table id="maze" onLoad={(event) => event.target.click()} autoFocus>
+			<table id="maze">
 				<tbody>
 					{maze.map((row, i) => (
 						<tr key={`row-${i}`}>
