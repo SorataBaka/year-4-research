@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { generateMaze } from "./util";
 import "./styles.scss";
 
@@ -16,6 +16,7 @@ export default function App() {
 		const lastColIndex = maze[0].length - 1;
 		if (userPosition[0] === lastRowIndex && userPosition[1] === lastColIndex) {
 			setStatus("won");
+			handleUpdateSettings();
 		}
 		//eslint-disable-next-line
 	}, [userPosition[0], userPosition[1]]);
@@ -45,34 +46,39 @@ export default function App() {
 		return arr.join(" ");
 	};
 
-	const handleMove = (e) => {
-		e.preventDefault();
-		if (status !== "playing") {
-			return;
-		}
-		const key = e.code;
+	const handleMove = useCallback(
+		(e) => {
+			e.preventDefault();
+			if (status !== "playing") {
+				return;
+			}
+			const key = e.code;
 
-		const [i, j] = userPosition;
-		if ((key === "ArrowUp" || key === "KeyW") && maze[i][j][0] === 1) {
-			setUserPosition([i - 1, j]);
-		}
-		if ((key === "ArrowRight" || key === "KeyD") && maze[i][j][1] === 1) {
-			setUserPosition([i, j + 1]);
-		}
-		if ((key === "ArrowDown" || key === "KeyS") && maze[i][j][2] === 1) {
-			setUserPosition([i + 1, j]);
-		}
-		if ((key === "ArrowLeft" || key === "KeyA") && maze[i][j][3] === 1) {
-			setUserPosition([i, j - 1]);
-		}
-	};
-
+			const [i, j] = userPosition;
+			if ((key === "ArrowUp" || key === "KeyW") && maze[i][j][0] === 1) {
+				setUserPosition([i - 1, j]);
+			}
+			if ((key === "ArrowRight" || key === "KeyD") && maze[i][j][1] === 1) {
+				setUserPosition([i, j + 1]);
+			}
+			if ((key === "ArrowDown" || key === "KeyS") && maze[i][j][2] === 1) {
+				setUserPosition([i + 1, j]);
+			}
+			if ((key === "ArrowLeft" || key === "KeyA") && maze[i][j][3] === 1) {
+				setUserPosition([i, j - 1]);
+			}
+		},
+		[maze, status, userPosition]
+	);
+	useEffect(() => {
+		document.addEventListener("keypress", handleMove);
+		return () => document.removeEventListener("keypress", handleMove);
+	}, [handleMove]);
 	const handleUpdateSettings = () => {
 		setUserPosition([0, 0]);
 		setStatus("playing");
 		setGameId(gameId + 1);
 	};
-
 	return (
 		<div className="App" onKeyDown={handleMove} tabIndex={-1}>
 			<div className="setting">
@@ -82,7 +88,7 @@ export default function App() {
 			</div>
 			<p>use WSAD or Arrow Keys to move</p>
 
-			<table id="maze">
+			<table id="maze" onLoad={(event) => event.target.click()} autoFocus>
 				<tbody>
 					{maze.map((row, i) => (
 						<tr key={`row-${i}`}>
