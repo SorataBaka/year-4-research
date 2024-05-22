@@ -25,7 +25,7 @@ function App() {
 		});
 		setStream(streamData);
 		const mediaRecorder = new MediaRecorder(streamData, {
-			mimeType: "video/mp4",
+			type: "video/mp4",
 		});
 		mediaRecorder.ondataavailable = (event) => {
 			setRecording(event.data);
