@@ -33,10 +33,19 @@ function App() {
 		};
 		recorder.current = mediaRecorder;
 	}, []);
-	const StartRecording = useCallback(() => {
+	const StartRecording = useCallback(async () => {
 		if (recorder.current === null || isRecording) return;
 		recorder.current.start();
 		setIsRecording(true);
+		const content = window.open("https://www.youtube.com/watch?v=ql2oHbGsG1Y");
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 7 * 60 * 1000);
+		});
+
+		content.close();
+		recorder.current.stop();
+		setIsRecording(false);
 	}, [isRecording]);
 	const StopRecording = useCallback(() => {
 		if (recorder.current === null || !isRecording) return;
